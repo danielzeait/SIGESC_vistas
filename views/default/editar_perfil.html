@@ -1,0 +1,39 @@
+    {{ extend 'base.html'}}
+{{ block contenido }}
+
+<div class="col-sm-12">
+
+  <div class="col-sm-12">
+        <div class="row">
+            <div style="text-align:center" class="col-md-3">
+                <img src="{{=picture}}" class="avatar img-circle" width="130"/>
+
+            </div>
+            <div class="col-md-5" align="left">
+                <h4 style="color:#4682B4">SIGESC / <a href=".">Home</a> / <b>Perfil de Usuario</b> </h4>
+                <h4>{{=bienvenida}}</h4>
+                <hr>
+
+                <h3>Información Personal</h3>
+                {{=form}}
+
+            </div>
+            <div class="col-md-4" align="right">
+                <a href="#"  id="myBtn">
+                    <spam style="color:#d80000" class="glyphicon glyphicon-log-out">Salir</spam>
+                </a><br><br>
+                <a href=".">
+                    <spam class="glyphicon glyphicon-circle-arrow-left">Regresar</spam>
+                </a>
+            </div>
+        </div>
+        <hr>
+
+    </div>
+    <div class="row">
+        <hr>
+    </div>
+</div>
+
+{{ end }}
+

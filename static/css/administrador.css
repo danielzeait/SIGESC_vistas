@@ -1,0 +1,20 @@
+.enlace{
+	cursor:pointer;
+}
+.enlace:hover{
+	background-color: #e6f3ff;
+}
+
+.miniloader{
+	margin: 0 auto;;
+    height: 200px;
+	background: url("../img/mini-loader.gif") center no-repeat;
+}
+
+#menu-admin{
+	text-decoration:none;
+}
+
+.principal{
+	margin-top: 20px;
+}

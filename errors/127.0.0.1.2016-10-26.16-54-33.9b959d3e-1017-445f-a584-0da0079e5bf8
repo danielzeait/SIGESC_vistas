@@ -1,0 +1,662 @@
+(dp1
+S'output'
+p2
+S"<class 'sqlite3.OperationalError'> table t_universitario_archive already exists"
+p3
+sS'layer'
+p4
+S'/home/daniel/web2py/applications/SIGESC_VISTAS/models/db_wizard.py'
+p5
+sS'code'
+p6
+S"# -*- coding: utf-8 -*-\n\ndb.define_table('t_sede',\n    Field('f_nombre', type='string', notnull=True,\n          label=T('Nombre')),\n    Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n          label=T('Estado'), default='Activo'),\n    auth.signature,\n    format='%(f_nombre)s',\n    migrate=settings.migrate)\n\ndb.define_table('t_sede_archive',db.t_sede,Field('current_record','reference t_sede',readable=False,writable=False))\n\ndb.define_table('t_comunidad',\n    Field('f_nombre', type='string', notnull=True,\n          label=T('Nombre')),\n    Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n          label=T('Estado'), default='Activo'),\n    auth.signature,\n    format='%(f_nombre)s',\n    migrate=settings.migrate)\n\ndb.define_table('t_comunidad_archive',db.t_sede,Field('current_record','reference t_comunidad',readable=False,writable=False))\n\ndb.define_table('t_universitario',\n    Field('f_usbid', type='string', notnull=True, unique=True,\n          label=T('Usbid'), writable=True,),\n    Field('f_key', type='string', notnull=True, readable=False,\n          label=T('Key'), writable=False,), # Clave generada al azar\n    Field('f_usuario', type='reference auth_user', notnull=True,\n          label=T('Usuario')),\n    Field('f_sede', type='reference t_sede', notnull=True,\n          label=T('Sede')),\n    format='%(f_usuario)s carnet: %(f_usbid)s')\n\ndb.define_table('t_universitario_archive',db.t_universitario,Field('current_record','reference t_universitario',readable=False,writable=False))\n\n# docente\ndb.define_table('t_docente',\n    Field('f_universitario', 'reference t_universitario',\n          unique=True, notnull=True,\n          requires=IS_IN_DB(db,db.t_universitario,'%(f_usbid)s'),\n          label=T('Usuario univesitario'),\n          writable=False),\n    Field('f_departamento',type='string',\n          notnull=True,\n          label=T('Departamento')),\n    format='%(f_universitario)s',\n    migrate=settings.migrate)\n\ndb.define_table('t_docente_archive',db.t_docente,Field('current_record','reference t_docente',readable=False,writable=False))\n\n'''\ndb.define_table('t_comunidad',\n    Field('f_nombre', type='string', notnull=True,\n          label=T('Nombre')),\n    Field('f_descripcion', type='text', notnull=True,\n          label=T('Descripcion')),\n    Field('f_cantidadbeneficiados', type='integer', notnull=True,\n          label=T('Cantidadbeneficiados')),\n    Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n          label=T('Estado'), default='Activo'), # Dos grupos tienen el campo con nombre dif\n    auth.signature,\n    format='%(f_nombre)s',\n    migrate=settings.migrate)\n\ndb.define_table('t_comunidad_archive',db.t_comunidad,Field('current_record','reference t_comunidad',readable=False,writable=False))\n'''\n\ndb.define_table('t_area',\n    Field('f_nombre', type='string', notnull=True,\n          label=T('Nombre')),\n    Field('f_descripcion', type='string', notnull=False,\n          label=T('Descripc\xc3\xadon')),\n    Field('f_codigo', type='string', notnull=True,\n          label=T('C\xc3\xb3digo')),\n    Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n          label=T('Estado'), default='Activo'),\n    auth.signature,\n    format='%(f_nombre)s',\n    migrate=settings.migrate)\ndb.define_table('t_area_archive',db.t_area,Field('current_record','reference t_area',readable=False,writable=False))\n\n\ndb.define_table('t_area_carrera',\n    Field('f_nombre', type='string', notnull=True,\n          label=T('Nombre')),\n    Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n          label=T('Estado'), default='Activo'),\n    auth.signature,\n    format='%(f_nombre)s',\n    migrate=settings.migrate)\ndb.define_table('t_area_carrera_archive',db.t_area_carrera,Field('current_record','reference t_area_carrera',readable=False,writable=False))\n\n\ndb.define_table('t_carrera',\n    Field('f_codigo', type='string', notnull=True,\n          label=T('Codigo')),\n    Field('f_area_carrera', 'reference t_area_carrera', notnull=True,\n          requires=IS_IN_DB(db,db.t_area_carrera,'%(f_nombre)s'),\n          label=T('Area de la carrera'),\n          writable=False),\n    Field('f_nombre', type='string', notnull=True, default='',\n          label=T('Nombre')),\n    Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n      label=T('Estado'), default='Activo'),\n    auth.signature,\n    format='%(f_nombre)s',\n    migrate=settings.migrate)\ndb.define_table('t_carrera_archive',db.t_carrera,Field('current_record','reference t_carrera',readable=False,writable=False))\n\ndb.define_table('t_estudiante',\n    Field('f_universitario', 'reference t_universitario',\n          unique=True, notnull=True,\n          requires=IS_IN_DB(db,db.t_universitario,'%(f_usbid)s'),\n          label=T('Usuario universitario'),\n          writable=False),\n    Field('f_carrera','reference t_carrera',\n          unique=False, notnull=False,\n          label=T('Carrera'),\n          writable=True),\n    Field('f_horas', requires=IS_INT_IN_RANGE(0,200), notnull=True,\n          label=T('Horas realizadas y validadas.'), default=0),\n    format='%(f_universitario)s',\n    migrate=settings.migrate)\ndb.define_table('t_estudiante_archive',db.t_estudiante,Field('current_record','reference t_estudiante',readable=False,writable=False))\n\ndb.define_table('t_proyecto',\n   Field('f_nombre', type='string', notnull=False,\n          label=T('Nombre'),default = ''),\n    Field('f_continuacion', type='boolean', notnull=False,\n          label=T('Nuevo o continuaci\xc3\xb3n'), default=False),\n    Field('f_resumen', type='text', notnull=False,\n          label=T('Resumen')),\n    Field('f_relacion_planes', type='text', notnull=False,\n          label=T('Relaci\xc3\xb3n con planes nacionales')),\n    Field('f_antecedentes', type='text', notnull=False,\n          label=T('Antecedentes')),\n    Field('f_obj_generales', type='text', notnull=False,\n          label=T('Objetivos Generales')),\n    Field('f_poblacion_beneficiaria', type='text', notnull=False,\n          label=T('Poblaci\xc3\xb3n beneficiaria')),\n    Field('f_justificacion', type='text', notnull=False,\n          label=T('Justificaci\xc3\xb3n')),\n    Field('f_logros_sociales', type='text', notnull=False,\n      label=T('Justificaci\xc3\xb3n')),\n    Field('f_impacto_social', type='text', notnull=False,\n      label=T('Justificaci\xc3\xb3n')),\n    Field('f_evaluacion', type='text', notnull=False,\n          label=T('Evaluaci\xc3\xb3n')),\n    Field('f_difusion_resultados', type='text', notnull=False,\n          label=T('Difusi\xc3\xb3n de resultados')),\n    Field('f_aplicacion_dir_ley', type='text', notnull=False,\n          label=T('Aplicaci\xc3\xb3n de las directrices y valores expuestos en la ley')),\n    Field('f_obj_aprendizaje', type='text', notnull=False,\n          label=T('Objetivos de aprendizaje')),\n    Field('f_num_requeridos', type='integer', notnull=False,\n          label=T('N\xc3\xbamero de estudiantes requeridos')),\n    Field('f_relevancia', type='text', notnull=False,\n          label=T('Relevancia')),\n    Field('f_originalidad', type='text', notnull=False,\n          label=T('Originalidad')),\n    Field('f_capacidad_ejecutora', type='text', notnull=False,\n          label=T('Capacidad ejecutora')),\n    Field('f_asoc_externa', type='text', notnull=False,\n          label=T('Asociatividad externa')),\n    Field('f_asoc_interna', type='text', notnull=False,\n          label=T('Asociatividad interna')),\n    Field('f_incorporacion_estudiantes', type='integer', notnull=False,\n          label=T('Incorporaci\xc3\xb3n estudiantes')),\n    Field('f_incorporacion_profesores', type='integer', notnull=False,\n          label=T('Incorporaci\xc3\xb3n profesores')),\n    Field('f_incorporacion_empleados', type='integer', notnull=False,\n          label=T('Incorporaci\xc3\xb3n empleados')),\n    Field('f_incorporacion_obreros', type='integer', notnull=False,\n          label=T('Incorporaci\xc3\xb3n obreros')),\n    Field('f_area', type='reference t_area', requires=IS_EMPTY_OR(IS_IN_DB(db, 't_area.id', '%(f_nombre)s')), notnull=False,\n          label=T('\xc3\x81rea de atenci\xc3\xb3n social')),\n    Field('f_area_carrera', type='reference t_area_carrera', requires=IS_EMPTY_OR(IS_IN_DB(db, 't_area_carrera.id', '%(f_nombre)s')), notnull=False,\n          label=T('\xc3\x81rea de competencia por carrera')),\n    Field('f_estado', type='reference t_estado', requires=IS_EMPTY_OR(IS_IN_DB(db, 't_estado.id', '%(f_nombre)s')), notnull=False,\n          label=T('Estado')),\n    Field('f_fechaini', type='date', requires= IS_EMPTY_OR(IS_DATE(format=('%d/%m/%Y'))), notnull=False,\n          label=T('Fecha Inicial')),\n    Field('f_fechafin', type='date', requires= IS_EMPTY_OR(IS_DATE(format=('%d/%m/%Y'))),notnull=False,\n          label=T('Fecha Final')),\n    Field('f_comunidad', type='reference t_comunidad', requires=IS_EMPTY_OR(IS_IN_DB(db, 't_comunidad.id', '%(f_nombre)s')), notnull=False,\n          label=T('Comunidad')),\n    migrate=settings.migrate)\ndb.define_table('t_proyecto_archive',db.t_proyecto,Field('current_record','reference t_proyecto',readable=False,writable=False))\n\n\ndb.define_table('t_objetivo',\n    Field('f_proyecto', type='reference t_proyecto', notnull=True),\n    Field('f_objetivo', type='text', notnull=True),\n    format='%(f_objetivo)s'\n)\ndb.define_table('t_objetivo_archive',db.t_objetivo,Field('current_record','reference t_objetivo',readable=False,writable=False))\n\ndb.define_table('t_proyecto_sede',\n    Field('f_proyecto', type='reference t_proyecto'),\n    Field('f_sede', type='reference t_sede'))\ndb.define_table('t_proyecto_sede_archive',db.t_proyecto_sede,Field('current_record','reference t_proyecto_sede',readable=False,writable=False))\n\ndb.define_table('t_proyecto_tutor',\n    Field('f_proyecto', type='reference t_proyecto'),\n    Field('f_tutor', type='reference auth_user'))\ndb.define_table('t_proyecto_tutor_archive',db.t_proyecto_tutor,Field('current_record','reference t_proyecto_tutor',readable=False,writable=False))\n\n\ndb.define_table('t_proyecto_tutor_comunitario',\n    Field('f_proyecto', type= 'reference t_proyecto'),\n    Field('f_tutor', type='reference auth_user'))\ndb.define_table('t_proyecto_tutor_comunitario_archive',db.t_proyecto_tutor_comunitario,Field('current_record','reference t_proyecto_tutor_comunitario',readable=False,writable=False))\n\ndb.define_table('t_actividad',\n    Field('f_proyecto', type='reference t_proyecto', notnull=True, writable=False, readable=True,\n          label=T('Proyecto')),\n    Field('f_nombre', type='string', notnull=True, default='',\n          label=T('Nombre')),\n    Field('f_resumen', type='text', default='',\n          label=T('Resumen')),\n    Field('f_alumnos', type='integer', default=1,\n          label=T('Alumnos requeridos')),\n    Field('f_requerimientos', type='text', default='',\n          label=T('Requerimientos')),\n    Field('f_recursos', type='text', default='',\n          label=T('Recursos')),\n    Field('f_costo', type='float',\n          label=T('Costo')),\n    Field('f_recursos_propios', type='text', default='',\n          label=T('Recursos propios')),\n    Field('f_aportes_otros', type='text', default='',\n          label=T('Aportes de otros donantes')),\n    Field('f_aportes_dex', type='text', default='',\n          label=T('Aportes solicitados a DEx')),\n    Field('f_monto_total', type='float', default='',\n          label=T('Monto total')),\n    auth.signature,\n    format='%(f_nombre)s',\n    migrate=settings.migrate                 \n)   \ndb.define_table('t_actividad_archive',db.t_actividad,Field('current_record','reference t_actividad',readable=False,writable=False))\n\ndb.define_table('t_cursa',\n    Field('f_estudiante', type='reference t_estudiante', notnull=True,\n          label=T('Estudiante')),\n    Field('f_proyecto', type='reference t_proyecto', notnull=True,\n          label=T('Proyecto')),\n    Field('f_estado', \n          requires=IS_IN_SET(['Aprobado',\n                              'Retirado',\n                              'Culminado',\n                              'Pendiente']), notnull=True, label=T('Estado'), default='Aprobado'),\n    Field('f_valido', requires=IS_IN_SET(['Valido', 'Invalido']), notnull=True, label=T('Valido'), default='Invalido'),\n    Field('f_fecha', type='date', requires = IS_DATE(format=('%d/%m/%Y')), notnull=False,\n          label=T('Fecha')),#fecha en que retira o culmina el SC\n\n    Field('f_informe','upload',label=T('Informe'), notnull=False),\n    Field('f_actual', type='boolean',     # el tutor comunitario confirma que se hizo la actividad\n        notnull=True, default=True, writable=False,\n        label=T('Actual')),\n    auth.signature,\n    format='%(id)s',\n    migrate=settings.migrate)\n\ndb.define_table('t_cursa_archive',db.t_cursa,Field('current_record','reference t_cursa',readable=False,writable=False))\n\n###################################\n#actividad de la bitacora\ndb.define_table('t_actividad_estudiante',\n    Field('f_cursa', type='reference t_cursa', notnull=True,\n        label=T('Cursa')),\n    Field('f_actividad', type='reference t_actividad', notnull=True,\n        label=T('Actividad')),\n    Field('f_horas', requires=IS_INT_IN_RANGE(0,121), notnull=True,\n        label=T('Horas a realizar'), default=0),\n    Field('f_realizada', type='boolean',      # el estudiante dice que hizo la actividad\n        notnull=True, default=False, writable=False,\n        label=T('Actividad realizada')),\n    Field('f_confirmada', type='boolean',     # el tutor comunitario confirma que se hizo la actividad\n        notnull=True, default=False, writable=False,\n        label=T('Actividad confirmada')),\n    format='%(f_cursa)s',\n    migrate=settings.migrate)\ndb.define_table('t_actividad_estudiante_archive',db.t_actividad_estudiante,Field('current_record','reference t_actividad_estudiante',readable=False,writable=False))\n\n# db.define_table('t_actividad_estudiante',\n#     Field('f_cursa', type='reference t_cursa', notnull=True,\n#         label=T('Cursa')),\n#     Field('f_actividad', type='reference t_actividad', notnull=True,\n#         label=T('Actividad')),\n#     Field('f_horas', requires=IS_INT_IN_RANGE(0,121), notnull=True,\n#           label=T('horas a realizar'), default=0),\n#     Field('f_realizada', type='boolean',      # el estudiante dice que hizo la actividad\n#         notnull=True, default=False, writable=False,\n#         label=T('Actividad realizada')),\n#     Field('f_confirmada', type='boolean',     # el tutor comunitario confirma que se hizo la actividad\n#         notnull=True, default=False, writable=False,\n#         label=T('Actividad confirmada')),\n#     format='%(f_cursa)s',\n#     migrate=settings.migrate)\n\n# db.define_table('t_actividad_estudiante_archive',db.t_relacionestproy,Field('current_record','reference t_actividad_estudiante',readable=False,writable=False))\n\n\n########################################\n'''\ndb.define_table('t_tipoprop',\n    Field('f_tipo', type='string', notnull=True,\n          label=T('Tipo')),\n    Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n          label=T('Estado'), default='Activo'),\n    auth.signature,\n    format='%(f_tipo)s',\n    migrate=settings.migrate)\n\ndb.define_table('t_tipoprop_archive',db.t_tipoprop,Field('current_record','reference t_tipoprop',readable=False,writable=False))\n'''\n\n########################################\n#db.define_table('t_proyecto',\n#    Field('f_codigo', type='string', notnull=True,\n#          label=T('Codigo')),\n#    auth.signature,\n#    format='%(f_codigo)s',\n#    migrate=settings.migrate)\n\n#db.define_table('t_proyecto_archive',db.t_proyecto,Field('current_record','reference t_proyecto',readable=False,writable=False))\n\n########################################\n\n\n\n########################################\n'''\ndb.define_table('t_condicion',\n    Field('f_tipo', type='string', notnull=True,\n          label=T('Tipo')),\n    Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n          label=T('Estado'), default='Activo'),\n    auth.signature,\n    format='%(f_tipo)s',\n    migrate=settings.migrate)\n\ndb.define_table('t_condicion_archive',db.t_condicion,Field('current_record','reference t_condicion',readable=False,writable=False))\n'''\n\ndb.define_table('t_propuesta',\n    Field('f_proyecto', type='reference t_proyecto', notnull=True,\n          label=T('ID del proyecto'), writable=False, readable=True),\n    Field('f_estado_propuesta', requires=IS_EMPTY_OR(IS_IN_SET(['Incompleta', 'En espera de revision', 'Aprobado', 'Aprobado con observaciones','Rechazado con observaciones'])),\n          label=T('Estado'), default='Incompleta', notnull=False),\n    Field('f_observaciones', type='text', default='',\n          label=T('Observaciones')),\n    Field('f_proponente', type='reference auth_user', default=auth.user_id, notnull=False,\n          label=T('Proponente')),\n    auth.signature,\n    format='%(f_proyecto)s',\n    #primarykey=['f_version','f_codigo'],\n    migrate=settings.migrate)\ndb.define_table('t_propuesta_archive',db.t_propuesta,Field('current_record','reference t_propuesta',readable=False,writable=False))\n\n\ndb.define_table('t_proyecto_aprobado',\n    Field('f_proyecto', type='reference t_proyecto', notnull=True,\n          label=T('ID del proyecto'), writable=False, readable=True),\n    Field('f_codigo', type='string', notnull=True, unique = True,\n          label=T('C\xc3\xb3digo')),\n    Field('f_estado_proyecto', requires=IS_IN_SET(['Activo', 'Inactivo']),\n          label=T('Estado'), default='Activo', notnull=True),\n    auth.signature,\n    format='%(f_codigo)s',\n    #primarykey=['f_version','f_codigo'],\n    migrate=settings.migrate)\ndb.define_table('t_proyecto_aprobado_archive',db.t_proyecto_aprobado,Field('current_record','reference t_proyecto_aprobado',readable=False,writable=False))\n\n\ndb.define_table('t_plan_operativo',\n    Field('f_proyecto', type='reference t_proyecto', notnull=True,\n          label=T('Proyecto')),\n    Field('f_actividad', type='reference t_actividad', notnull=True,\n          label=T('Actividad')),\n    Field('f_objetivo', type='reference t_objetivo', notnull=True,\n          label=T('Objetivo')),\n    Field('f_meta', type='text', notnull=True,\n          label=T('Meta')),\n    Field('f_tiempo', type='integer', notnull=True,\n          label=T('Tiempo de ejecuci\xc3\xb3n')),\n    Field('f_recursos', type='text', notnull=True,\n          label=T('Recursos humanos y materiales')),\n    Field('f_resultados_esperados', type='text', notnull=True,\n          label=T('Resultados esperados')),\n    Field('f_responsable', type='string', notnull=True, requires=IS_EMPTY_OR(IS_IN_SET(['Estudiante','Tutor acad\xc3\xa9mico','Tutor comunitario'])),\n          label=T('Responsable')))\ndb.define_table('t_plan_operativo_archive',db.t_plan_operativo,Field('current_record','reference t_plan_operativo',readable=False,writable=False))\n\n########################################\n# db.define_table('t_carrera',\n#     Field('f_codigo', type='string', notnull=True,\n#           label=T('Codigo')),\n#     Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n#           label=T('Estado'), default='Activo'),\n#     auth.signature,\n#     format='%(f_codigo)s',\n#     migrate=settings.migrate)\n\n# db.define_table('t_carrera_archive',db.t_carrera,Field('current_record','reference t_carrera',readable=False,writable=False))\n\n#######################################\n# db.define_table('t_estudiante',\n#     Field('f_usbid', type='string', notnull=True,\n#           label=T('Usbid'), writable=False),\n#     Field('f_nombre', type='string', notnull=True,\n#           label=T('Nombre')),\n#     Field('f_apellido', type='string', notnull=True,\n#           label=T('Apellido')),\n#     Field('f_cedula', type='string', notnull=True,\n#           label=T('Cedula')),\n#     Field('f_carrera', type='reference t_carrera', notnull=True,\n#           label=T('Carrera')),\n#     Field('f_sede', type='reference t_sede', notnull=True,\n#           label=T('Sede')),\n#     Field('f_email', type='string', notnull=True,\n#           label=T('Email')),\n#     Field('f_sexo', type='reference t_sexo', notnull=True,\n#           label=T('Sexo')),\n#     Field('f_telefono', type='string', notnull=True,\n#           label=T('Telefono')),\n#     Field('f_user', type='reference auth_user', notnull=False,\n#           label=T('Nombre de usuario')),\n#     Field('f_direccion', type='text', notnull=True,\n#           label=T('Direccion')),\n#     Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n#           label=T('Estado'), default='Activo'),\n#     auth.signature,\n#     format='%(f_usbid)s',\n#     migrate=settings.migrate)\n\n# db.define_table('t_estudiante_archive',db.t_estudiante,Field('current_record','reference t_estudiante',readable=False,writable=False))\n\n########################################\n# db.define_table('t_relacionestproy',\n#     Field('f_tipo', type='string', notnull=True,\n#           label=T('Tipo')),\n\n#     auth.signature,\n#     format='%(f_tipo)s',\n#     migrate=settings.migrate)\n\n# db.define_table('t_relacionestproy_archive',db.t_relacionestproy,Field('current_record','reference t_relacionestproy',readable=False,writable=False))\n\n########################################\n# db.define_table('t_cursa',\n#     Field('f_estudiante', type='reference t_estudiante', notnull=True,\n#           label=T('Estudiante')),\n#     Field('f_proyecto', type='reference t_proyecto', notnull=True,\n#           label=T('Proyecto')),\n#     Field('f_state', type='reference t_relacionestproy', notnull=True,\n#           label=T('State')),\n#     Field('f_valido', type='string', notnull=True, label=T('Valido'), default='Invalido'),\n#     auth.signature,\n#     format='%(f_estudiante)s',\n#     migrate=settings.migrate)\n\n# db.define_table('t_cursa_archive',db.t_cursa,Field('current_record','reference t_cursa',readable=False,writable=False))\n### we prepend t_ to tablenames and f_ to fieldnames for disambiguity\n\n# GESTION DE PROYECTO\n########################################\n\n########################################\n\n########################################\n\n########################################\n\n########################################\n\n########################################\n# db.define_table('t_tutor',\n#     Field('f_usbid', type='string', notnull=False,\n#           label=T('Usbid')),\n#     Field('f_cedula', type='string', notnull=True,\n#           label=T('Cedula')),\n#     Field('f_nombre', type='string', notnull=True,\n#           label=T('Nombre')),\n#     Field('f_apellido', type='string', notnull=True,\n#           label=T('Apellido')),\n#     Field('f_sede', type='reference t_sede', notnull=True,\n#           label=T('Sede')),\n#     Field('f_email', type='string', notnull=True,\n#           label=T('Email')),\n#     Field('f_sexo', type='reference t_sexo', notnull=True,\n#           label=T('Sexo')),\n#     Field('f_telefono', type='string', notnull=True,\n#           label=T('Telefono')),\n#     Field('f_direccion', type='text', notnull=True,\n#           label=T('Direccion')),\n#     Field('f_user', type='reference auth_user', notnull=False,\n#           label=T('Nombre de usuario')),\n#     Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n#           label=T('Estado'), default='Activo'),\n#     auth.signature,\n#     format='%(f_usbid)s',\n#     migrate=settings.migrate)\n\n# db.define_table('t_tutor_archive',db.t_tutor,Field('current_record','reference t_tutor',readable=False,writable=False))\n\n\n########################################\n#db.define_table('t_proyecto',\n#    Field('f_codigo', type='string', notnull=True,\n#          label=T('Codigo')),\n#    auth.signature,\n#    format='%(f_codigo)s',\n#    migrate=settings.migrate)\n\n#db.define_table('t_proyecto_archive',db.t_proyecto,Field('current_record','reference t_proyecto',readable=False,writable=False))\n\n\n\n########################################\n\n########################################\n# TODOS SON PROPONENTES, AUTH_USER\n# db.define_table('t_proponente',\n#     Field('f_tipoprop', type='reference t_tipoprop', notnull=True,\n#           label=T('Tipoprop')),\n#     Field('f_cedula', type='string', notnull=True,\n#           label=T('Cedula')),\n#     Field('f_nombre', type='string', notnull=True,\n#           label=T('Nombre')),\n#     Field('f_apellido', type='string', notnull=True,\n#           label=T('Apellido')),\n#     Field('f_email', type='string', notnull=True,\n#           label=T('Email')),\n#     Field('f_user', type='reference auth_user', notnull=False,\n#           label=T('Nombre de usuario')),\n#     Field('f_sexo', type='reference t_sexo', notnull=True,\n#           label=T('Sexo')),\n#     Field('f_telefono', type='string', notnull=True,\n#           label=T('Telefono')),\n#     Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n#           label=T('Estado'), default='Activo'),\n#     auth.signature,\n#     format='%(f_tipoprop)s',\n#     migrate=settings.migrate)\n\n# db.define_table('t_proponente_archive',db.t_proponente,Field('current_record','reference t_proponente',readable=False,writable=False))\n\n########################################\n\n\n\n\n########################################\n\n########################################\n# auth_user, t_universitario y t_estudiante la incluyen\n# db.define_table('t_estudiante',\n#     Field('f_usbid', type='string', notnull=True,\n#           label=T('Usbid'), writable=False),\n#     Field('f_nombre', type='string', notnull=True,\n#           label=T('Nombre')),\n#     Field('f_apellido', type='string', notnull=True,\n#           label=T('Apellido')),\n#     Field('f_cedula', type='string', notnull=True,\n#           label=T('Cedula')),\n#     Field('f_carrera', type='reference t_carrera', notnull=True,\n#           label=T('Carrera')),\n#     Field('f_sede', type='reference t_sede', notnull=True,\n#           label=T('Sede')),\n#     Field('f_email', type='string', notnull=True,\n#           label=T('Email')),\n#     Field('f_sexo', type='reference t_sexo', notnull=True,\n#           label=T('Sexo')),\n#     Field('f_telefono', type='string', notnull=True,\n#           label=T('Telefono')),\n#     Field('f_user', type='reference auth_user', notnull=False,\n#           label=T('Nombre de usuario')),\n#     Field('f_direccion', type='text', notnull=True,\n#           label=T('Direccion')),\n#     Field('f_estado', requires=IS_IN_SET(['Activo', 'Inactivo']), notnull=True,\n#           label=T('Estado'), default='Activo'),\n#     auth.signature,\n#     format='%(f_usbid)s',\n#     migrate=settings.migrate)\n\n# db.define_table('t_estudiante_archive',db.t_estudiante,Field('current_record','reference t_estudiante',readable=False,writable=False))\n\n########################################\n\n#actividad de la bitacora\n\n########################################\ndb.define_table('t_inscripcion',\n    Field('f_estudiante', type='reference t_estudiante', notnull=True,\n          label=T('Estudiante')),\n    Field('f_proyecto', type='reference t_proyecto', notnull=True,\n          label=T('Proyecto')),\n    Field('f_estado',\n          requires=IS_IN_SET(['Aprobado',\n                              'Pendiente'\n                              ]), notnull=True, label=T('Estado'), default='Pendiente'),\n    Field('f_horas', requires=IS_INT_IN_RANGE(0,121), notnull=True,\n          label=T('horas'), default=30),\n    Field('f_actual', type='boolean',default=False, notnull=False,\n          label=T('Actual')),\n    auth.signature,\n    format='%(f_estudiante)s',\n    migrate=settings.migrate)\n\ndb.define_table('t_inscripcion_archive',db.t_inscripcion,Field('current_record','reference t_inscripcion',readable=False,writable=False))\n\ndb.define_table('t_fechas_tope',\n  Field('f_tipo',requires=IS_IN_SET(['Inscripci\xc3\xb3n','Inscripci\xc3\xb3n Extempor\xc3\xa1nea']), notnull=True, \n    label=T('Tipo')),\n  Field('f_fecha_inicial', type='date', requires=IS_DATE(format=('%d/%m/%Y')),notnull=True,\n    label=T('Fecha Inicial')),\n  Field('f_fecha_final', type='date', requires=IS_DATE(format=('%d/%m/%Y')),notnull=True,\n    label=T('Fecha Final')),\n    auth.signature,\n    format='%(f_fechas_tope)s',\n    migrate=settings.migrate)\n\ndb.define_table('t_fechas_tope_archive',db.t_fechas_tope,Field('current_record','reference t_fechas_tope',readable=False,writable=False))\n"
+p7
+sS'snapshot'
+p8
+(dp9
+S'exception'
+p10
+(dp11
+S'__module__'
+p12
+S"'sqlite3'"
+p13
+sS'__getslice__'
+p14
+S"<method-wrapper '__getslice__' of OperationalError object>"
+p15
+sS'__str__'
+p16
+S"<method-wrapper '__str__' of OperationalError object>"
+p17
+sS'__reduce__'
+p18
+S'<built-in method __reduce__ of OperationalError object>'
+p19
+sS'__dict__'
+p20
+S'{}'
+p21
+sS'__sizeof__'
+p22
+S'<built-in method __sizeof__ of OperationalError object>'
+p23
+sS'__weakref__'
+p24
+S'None'
+p25
+sS'__init__'
+p26
+S"<method-wrapper '__init__' of OperationalError object>"
+p27
+sS'__setattr__'
+p28
+S"<method-wrapper '__setattr__' of OperationalError object>"
+p29
+sS'__reduce_ex__'
+p30
+S'<built-in method __reduce_ex__ of OperationalError object>'
+p31
+sS'__new__'
+p32
+S'<built-in method __new__ of type object>'
+p33
+sS'__format__'
+p34
+S'<built-in method __format__ of OperationalError object>'
+p35
+sS'__class__'
+p36
+S"<class 'sqlite3.OperationalError'>"
+p37
+sS'__doc__'
+p38
+S'None'
+p39
+sS'__getitem__'
+p40
+S"<method-wrapper '__getitem__' of OperationalError object>"
+p41
+sS'__setstate__'
+p42
+S'<built-in method __setstate__ of OperationalError object>'
+p43
+sS'__getattribute__'
+p44
+S"<method-wrapper '__getattribute__' of OperationalError object>"
+p45
+sS'args'
+p46
+S"('table t_universitario_archive already exists',)"
+p47
+sS'__subclasshook__'
+p48
+S'<built-in method __subclasshook__ of type object>'
+p49
+sS'__unicode__'
+p50
+S'<built-in method __unicode__ of OperationalError object>'
+p51
+sS'__delattr__'
+p52
+S"<method-wrapper '__delattr__' of OperationalError object>"
+p53
+sS'__repr__'
+p54
+S"<method-wrapper '__repr__' of OperationalError object>"
+p55
+sS'__hash__'
+p56
+S"<method-wrapper '__hash__' of OperationalError object>"
+p57
+ssS'evalue'
+p58
+S'table t_universitario_archive already exists'
+p59
+sS'request'
+p60
+cgluon.html
+XML_unpickle
+p61
+(S'sOT\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">ajax</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">application</td><td style="vertical-align:top;">:</td><td><div>SIGESC_VISTAS</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cid</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">controller</td><td style="vertical-align:top;">:</td><td><div>default</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_admin</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-fd73e0af-0add-4566-ba97-1a7505ceef40<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_welcome</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-f243248d-ca47-492d-a287-60bd2eea56f8<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">env</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_ENCODING</td><td style="vertical-align:top;">:</td><td><div>gzip, deflate</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_LANGUAGE</td><td style="vertical-align:top;">:</td><td><div>es-ar,es;q=0.8,en-us;q=0.5,en;q=0.3</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONNECTION</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_COOKIE</td><td style="vertical-align:top;">:</td><td><div>session_id_welcome=127.0.0.1-f243248d-ca47-492d-a287-60bd2eea56f8; session_id_admin=127.0.0.1-fd73e0af-0add-4566-ba97-1a7505ceef40</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_HOST</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_USER_AGENT</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:35.0) Gecko/20100101 Firefox/35.0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">PATH_INFO</td><td style="vertical-align:top;">:</td><td><div>/SIGESC_VISTAS/default/index</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">QUERY_STRING</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_ADDR</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_PORT</td><td style="vertical-align:top;">:</td><td><div>60679</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REQUEST_METHOD</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SCRIPT_NAME</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_NAME</td><td style="vertical-align:top;">:</td><td><div>daniel-ThinkPad-T61</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PORT</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PROTOCOL</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_SOFTWARE</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/daniel/web2py/applications/admin/&#x27;, &#x27;/home/daniel/web2py/applications/welcome/&#x27;, &#x27;/home/daniel/web2py/applications/SIGESC_VISTAS/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/daniel/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0xa139dcc: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;127.0.1.1&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;scheduler_groups&#x27;: None, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;daniel-ThinkPad-T61&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: True, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/home/daniel/web2py&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;gae&#x27;: None, &#x27;password&#x27;: &#x27;1234&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/daniel/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_encoding</td><td style="vertical-align:top;">:</td><td><div>gzip, deflate</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_language</td><td style="vertical-align:top;">:</td><td><div>es-ar,es;q=0.8,en-us;q=0.5,en;q=0.3</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_connection</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cookie</td><td style="vertical-align:top;">:</td><td><div>session_id_welcome=127.0.0.1-f243248d-ca47-492d-a287-60bd2eea56f8; session_id_admin=127.0.0.1-fd73e0af-0add-4566-ba97-1a7505ceef40</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_host</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_user_agent</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:35.0) Gecko/20100101 Firefox/35.0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>daniel-ThinkPad-T61</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>127.0.1.1</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path_info</td><td style="vertical-align:top;">:</td><td><div>/SIGESC_VISTAS/default/index</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">query_string</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_addr</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_port</td><td style="vertical-align:top;">:</td><td><div>60679</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_method</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_uri</td><td style="vertical-align:top;">:</td><td><div>/SIGESC_VISTAS/default/index</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">script_name</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_name</td><td style="vertical-align:top;">:</td><td><div>daniel-ThinkPad-T61</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_port</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_protocol</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_software</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_path</td><td style="vertical-align:top;">:</td><td><div>/home/daniel/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.12-stable+timestamp.2015.01.17.06.11.03</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0xb72a70d0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0xa10083c&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0xaf8389ac&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0xb72a70d0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0xa10083c&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0xaf8389ac&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">extension</td><td style="vertical-align:top;">:</td><td><div>html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">folder</td><td style="vertical-align:top;">:</td><td><div>/home/daniel/web2py/applications/SIGESC_VISTAS/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">function</td><td style="vertical-align:top;">:</td><td><div>index</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">global_settings</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/daniel/web2py/applications/admin/&#x27;, &#x27;/home/daniel/web2py/applications/welcome/&#x27;, &#x27;/home/daniel/web2py/applications/SIGESC_VISTAS/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/daniel/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0xa139dcc: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;127.0.1.1&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;scheduler_groups&#x27;: None, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;daniel-ThinkPad-T61&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: True, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/home/daniel/web2py&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;gae&#x27;: None, &#x27;password&#x27;: &#x27;1234&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/daniel/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>daniel-ThinkPad-T61</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>127.0.1.1</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.12-stable+timestamp.2015.01.17.06.11.03</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_https</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_local</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_restful</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_sheduler</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_shell</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">now</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2016, 10, 26, 16, 54, 33, 76715)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_args</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_extension</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">url</td><td style="vertical-align:top;">:</td><td><div>/SIGESC_VISTAS/default/index</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">utcnow</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2016, 10, 26, 21, 24, 33, 76758)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">uuid</td><td style="vertical-align:top;">:</td><td><div>SIGESC_VISTAS/127.0.0.1.2016-10-26.16-54-33.9b959d3e-1017-445f-a584-0da0079e5bf8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi</td><td style="vertical-align:top;">:</td><td><div>&lt;gluon.main.LazyWSGI object at 0xafbcae6c&gt;</div></td></tr></table></div>'
+tRp62
+sS'frames'
+p63
+(lp64
+(dp65
+S'file'
+p66
+S'/home/daniel/web2py/gluon/restricted.py'
+p67
+sS'dump'
+p68
+(dp69
+S'environment'
+p70
+S"{'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'ASSIGNJS': <function ASSIGNJS>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, ...}"
+p71
+sS'ccode'
+p72
+S'<code object <module> at 0xaf837f98, file "/home...tions/SIGESC_VISTAS/models/db_wizard.py", line 3>'
+p73
+ssS'lnum'
+p74
+I224
+sS'lines'
+p75
+(dp76
+I224
+S'        exec ccode in environment'
+p77
+sI225
+S'    except HTTP:'
+p78
+sI226
+S'        raise'
+p79
+sI227
+S'    except RestrictedError:'
+p80
+sI228
+S'        # do not encapsulate (obfuscate) the original RestrictedError'
+p81
+sI219
+S'    try:'
+p82
+sI220
+S'        if isinstance(code, types.CodeType):'
+p83
+sI221
+S'            ccode = code'
+p84
+sI222
+S'        else:'
+p85
+sI223
+S'            ccode = compile2(code, layer)'
+p86
+ssS'call'
+p87
+S'(code="# -*- coding: utf-8 -*-\\n\\ndb.define_table(\'t_sede...e t_fechas_tope\',readable=False,writable=False))\\n", environment={\'A\': <class \'gluon.html.A\'>, \'ANY_OF\': <class \'gluon.validators.ANY_OF\'>, \'ASSIGNJS\': <function ASSIGNJS>, \'Auth\': <class \'gluon.tools.Auth\'>, \'B\': <class \'gluon.html.B\'>, \'BEAUTIFY\': <class \'gluon.html.BEAUTIFY\'>, \'BODY\': <class \'gluon.html.BODY\'>, \'BR\': <class \'gluon.html.BR\'>, \'BUTTON\': <class \'gluon.html.BUTTON\'>, \'CAT\': <class \'gluon.html.CAT\'>, ...}, layer=\'/home/daniel/web2py/applications/SIGESC_VISTAS/models/db_wizard.py\')'
+p88
+sS'func'
+p89
+S'restricted'
+p90
+sa(dp91
+g66
+S'/home/daniel/web2py/applications/SIGESC_VISTAS/models/db_wizard.py'
+p92
+sg68
+(dp93
+S'db.define_table'
+p94
+S'<bound method DAL.define_table of <DAL uri="sqlite://storage.sqlite">>'
+p95
+sS'builtinFalse'
+p96
+S'False'
+p97
+sS'readable'
+p98
+S'undefined'
+p99
+sS'db'
+p100
+S'<DAL uri="sqlite://storage.sqlite">'
+p101
+sS'writable'
+p102
+g99
+sS'Field'
+p103
+S"<class 'gluon.dal.objects.Field'>"
+p104
+sS'db.t_universitario'
+p105
+S'<Table t_universitario (id,f_usbid,f_key,f_usuario,f_sede)>'
+p106
+ssg74
+I36
+sg75
+(dp107
+I32
+S"    Field('f_sede', type='reference t_sede', notnull=True,"
+p108
+sI33
+S"          label=T('Sede')),"
+p109
+sI34
+S"    format='%(f_usuario)s carnet: %(f_usbid)s')"
+p110
+sI35
+S''
+sI36
+S"db.define_table('t_universitario_archive',db.t_universitario,Field('current_record','reference t_universitario',readable=False,writable=False))"
+p111
+sI37
+S''
+sI38
+S'# docente'
+p112
+sI39
+S"db.define_table('t_docente',"
+p113
+sI40
+S"    Field('f_universitario', 'reference t_universitario',"
+p114
+sI31
+S"          label=T('Usuario')),"
+p115
+ssg87
+S'()'
+p116
+sg89
+S'<module>'
+p117
+sa(dp118
+g66
+S'/home/daniel/web2py/gluon/dal/base.py'
+p119
+sg68
+(dp120
+S'fields'
+p121
+S'(<Table t_universitario (id,f_usbid,f_key,f_usuario,f_sede)>, <gluon.dal.objects.Field object>)'
+p122
+sS'self'
+p123
+S'<DAL uri="sqlite://storage.sqlite">'
+p124
+sS'args'
+p125
+g21
+sS'tablename'
+p126
+S"'t_universitario_archive'"
+p127
+sS'table'
+p128
+g99
+sS'self.lazy_define_table'
+p129
+S'<bound method DAL.lazy_define_table of <DAL uri="sqlite://storage.sqlite">>'
+p130
+ssg74
+I787
+sg75
+(dp131
+I782
+S'                    % (tablename,invalid_args))'
+p132
+sI783
+S'        if self._lazy_tables and not tablename in self._LAZY_TABLES:'
+p133
+sI784
+S'            self._LAZY_TABLES[tablename] = (tablename,fields,args)'
+p134
+sI785
+S'            table = None'
+p135
+sI786
+S'        else:'
+p136
+sI787
+S'            table = self.lazy_define_table(tablename,*fields,**args)'
+p137
+sI788
+S'        if not tablename in self.tables:'
+p138
+sI789
+S'            self.tables.append(tablename)'
+p139
+sI790
+S'        return table'
+p140
+sI791
+S''
+ssg87
+S'(self=<DAL uri="sqlite://storage.sqlite">, tablename=\'t_universitario_archive\', *fields=(<Table t_universitario (id,f_usbid,f_key,f_usuario,f_sede)>, <gluon.dal.objects.Field object>), **args={})'
+p141
+sg89
+S'define_table'
+p142
+sa(dp143
+g66
+S'/home/daniel/web2py/gluon/dal/base.py'
+p144
+sg68
+(dp145
+S'polymodel'
+p146
+S'None'
+p147
+ssg74
+I824
+sg75
+(dp148
+I819
+S'            try:'
+p149
+sI820
+S'                GLOBAL_LOCKER.acquire()'
+p150
+sI821
+S'                self._lastsql = self._adapter.create_table('
+p151
+sI822
+S'                    table,migrate=migrate,'
+p152
+sI823
+S'                    fake_migrate=fake_migrate,'
+p153
+sI824
+S'                    polymodel=polymodel)'
+p154
+sI825
+S'            finally:'
+p155
+sI826
+S'                GLOBAL_LOCKER.release()'
+p156
+sI827
+S'        else:'
+p157
+sI828
+S'            table._dbt = None'
+p158
+ssg87
+S'(self=<DAL uri="sqlite://storage.sqlite">, tablename=\'t_universitario_archive\', *fields=(<Table t_universitario (id,f_usbid,f_key,f_usuario,f_sede)>, <gluon.dal.objects.Field object>), **args={})'
+p159
+sg89
+S'lazy_define_table'
+p160
+sa(dp161
+g66
+S'/home/daniel/web2py/gluon/dal/adapters/base.py'
+p162
+sg68
+(dp163
+S'query'
+p164
+S"'CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);'"
+p165
+sS'self'
+p166
+S'<gluon.dal.adapters.sqlite.SQLiteAdapter object>'
+p167
+sS'table'
+p168
+S'<Table t_universitario_archive (id,f_usbid,f_key,f_usuario,f_sede,current_record)>'
+p169
+sS'self.create_sequence_and_triggers'
+p170
+S'<bound method SQLiteAdapter.create_sequence_and_...<gluon.dal.adapters.sqlite.SQLiteAdapter object>>'
+p171
+ssg74
+I459
+sg75
+(dp172
+I454
+S'            if table._dbt:'
+p173
+sI455
+S"                self.log('timestamp: %s\\n%s\\n'"
+p174
+sI456
+S'                         % (datetime.datetime.today().isoformat(),'
+p175
+sI457
+S'                            query), table)'
+p176
+sI458
+S'            if not fake_migrate:'
+p177
+sI459
+S'                self.create_sequence_and_triggers(query,table)'
+p178
+sI460
+S'                table._db.commit()'
+p179
+sI461
+S'                # Postgres geom fields are added now,'
+p180
+sI462
+S'                # after the table has been created'
+p181
+sI463
+S'                for query in postcreation_fields:'
+p182
+ssg87
+S'(self=<gluon.dal.adapters.sqlite.SQLiteAdapter object>, table=<Table t_universitario_archive (id,f_usbid,f_key,f_usuario,f_sede,current_record)>, migrate=True, fake_migrate=False, polymodel=None)'
+p183
+sg89
+S'create_table'
+p184
+sa(dp185
+g66
+S'/home/daniel/web2py/gluon/dal/adapters/base.py'
+p186
+sg68
+(dp187
+S'query'
+p188
+S"'CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);'"
+p189
+sS'self'
+p190
+S'<gluon.dal.adapters.sqlite.SQLiteAdapter object>'
+p191
+sS'self.execute'
+p192
+S'<bound method SQLiteAdapter.execute of <gluon.dal.adapters.sqlite.SQLiteAdapter object>>'
+p193
+ssg74
+I1300
+sg75
+(dp194
+I1295
+S''
+sI1296
+S'    def constraint_name(self, table, fieldname):'
+p195
+sI1297
+S"        return '%s_%s__constraint' % (table,fieldname)"
+p196
+sI1298
+S''
+sI1299
+S'    def create_sequence_and_triggers(self, query, table, **args):'
+p197
+sI1300
+S'        self.execute(query)'
+p198
+sI1301
+S''
+sI1302
+S''
+sI1303
+S'    def log_execute(self, *a, **b):'
+p199
+sI1304
+S'        if not self.connection: raise ValueError(a[0])'
+p200
+ssg87
+S"(self=<gluon.dal.adapters.sqlite.SQLiteAdapter object>, query='CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);', table=<Table t_universitario_archive (id,f_usbid,f_key,f_usuario,f_sede,current_record)>, **args={})"
+p201
+sg89
+S'create_sequence_and_triggers'
+p202
+sa(dp203
+g66
+S'/home/daniel/web2py/gluon/dal/adapters/base.py'
+p204
+sg68
+(dp205
+S'a'
+S"('CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);',)"
+p206
+sS'self'
+p207
+S'<gluon.dal.adapters.sqlite.SQLiteAdapter object>'
+p208
+sS'b'
+g21
+sS'self.log_execute'
+p209
+S'<bound method SQLiteAdapter.log_execute of <gluon.dal.adapters.sqlite.SQLiteAdapter object>>'
+p210
+ssg74
+I1319
+sg75
+(dp211
+I1314
+S'        self.db._timings.append((command,time.time()-t0))'
+p212
+sI1315
+S'        del self.db._timings[:-TIMINGSSIZE]'
+p213
+sI1316
+S'        return ret'
+p214
+sI1317
+S''
+sI1318
+S'    def execute(self, *a, **b):'
+p215
+sI1319
+S'        return self.log_execute(*a, **b)'
+p216
+sI1320
+S''
+sI1321
+S'    def represent(self, obj, fieldtype):'
+p217
+sI1322
+S'        field_is_type = fieldtype.startswith'
+p218
+sI1323
+S'        if isinstance(obj, CALLABLETYPES):'
+p219
+ssg87
+S"(self=<gluon.dal.adapters.sqlite.SQLiteAdapter object>, *a=('CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);',), **b={})"
+p220
+sg89
+S'execute'
+p221
+sa(dp222
+g66
+S'/home/daniel/web2py/gluon/dal/adapters/base.py'
+p223
+sg68
+(dp224
+S'a'
+S"('CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);',)"
+p225
+sS'b'
+g21
+sS'self'
+p226
+S'<gluon.dal.adapters.sqlite.SQLiteAdapter object>'
+p227
+sS'ret'
+p228
+g99
+sS'self.cursor'
+p229
+S'<sqlite3.Cursor object>'
+p230
+sS'command'
+p231
+S"'CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);'"
+p232
+sS'self.cursor.execute'
+p233
+S'<built-in method execute of sqlite3.Cursor object>'
+p234
+ssg74
+I1313
+sg75
+(dp235
+I1312
+S'        t0 = time.time()'
+p236
+sI1313
+S'        ret = self.cursor.execute(command, *a[1:], **b)'
+p237
+sI1314
+S'        self.db._timings.append((command,time.time()-t0))'
+p238
+sI1315
+S'        del self.db._timings[:-TIMINGSSIZE]'
+p239
+sI1316
+S'        return ret'
+p240
+sI1317
+S''
+sI1308
+S'            command = self.filter_sql_command(command)'
+p241
+sI1309
+S'        if self.db._debug:'
+p242
+sI1310
+S"            LOGGER.debug('SQL: %s' % command)"
+p243
+sI1311
+S'        self.db._lastsql = command'
+p244
+ssg87
+S"(self=<gluon.dal.adapters.sqlite.SQLiteAdapter object>, *a=('CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);',), **b={})"
+p245
+sg89
+S'log_execute'
+p246
+sasS'pyver'
+p247
+S'Python 2.7.3: /usr/bin/python (prefix: /usr)'
+p248
+sS'session'
+p249
+g61
+(S's\x1a\x00\x00\x00<div><table></table></div>'
+tRp250
+sS'etype'
+p251
+S"<class 'sqlite3.OperationalError'>"
+p252
+sS'date'
+p253
+S'Wed Oct 26 16:54:33 2016'
+p254
+sS'response'
+p255
+g61
+(S's\xd2\x16\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">body</td><td style="vertical-align:top;">:</td><td><div>&lt;cStringIO.StringO object at 0xafbca960&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_sigesc_vistas</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-09f62ac8-ebf7-48ed-874c-5b0d4c8fda7d<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div>/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">delimiters</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>{{</div></td></tr><tr><td><div>}}</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">files</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">form_label_separator</td><td style="vertical-align:top;">:</td><td><div>: </div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">formstyle</td><td style="vertical-align:top;">:</td><td><div>table3cols</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generic_patterns</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>*</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">headers</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">X-Powered-By</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">menu</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">meta</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">models_to_run</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>^\\w+\\.py$</div></td></tr><tr><td><div>^default/\\w+\\.py$</div></td></tr><tr><td><div>^default/index/\\w+\\.py$</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">postprocessing</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_compression_level</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_expires</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_key</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_data_name</td><td style="vertical-align:top;">:</td><td><div>session_data_sigesc_vistas</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_file</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_filename</td><td style="vertical-align:top;">:</td><td><div>/home/daniel/web2py/applications/SIGESC_VISTAS/sessions/127.0.0.1-09f62ac8-ebf7-48ed-874c-5b0d4c8fda7d</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_hash</td><td style="vertical-align:top;">:</td><td><div>c0762cbf4baf7f9af97c051e7fcb8083</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-09f62ac8-ebf7-48ed-874c-5b0d4c8fda7d</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_name</td><td style="vertical-align:top;">:</td><td><div>session_id_sigesc_vistas</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_masterapp</td><td style="vertical-align:top;">:</td><td><div>SIGESC_VISTAS</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_new</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_storage_type</td><td style="vertical-align:top;">:</td><td><div>file</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">status</td><td style="vertical-align:top;">:</td><td><div>200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">view</td><td style="vertical-align:top;">:</td><td><div>default/index.html</div></td></tr></table></div>'
+tRp256
+sS'locals'
+p257
+(dp258
+S'a'
+S"('CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);',)"
+p259
+sS'self'
+p260
+S'<gluon.dal.adapters.sqlite.SQLiteAdapter object>'
+p261
+sS'b'
+g21
+sS'command'
+p262
+S"'CREATE TABLE t_universitario_archive(\\n    id INT...ERENCES t_universitario (id) ON DELETE CASCADE\\n);'"
+p263
+sS't0'
+p264
+S'1477517073.134642'
+p265
+sssS'traceback'
+p266
+S'Traceback (most recent call last):\n  File "/home/daniel/web2py/gluon/restricted.py", line 224, in restricted\n    exec ccode in environment\n  File "/home/daniel/web2py/applications/SIGESC_VISTAS/models/db_wizard.py", line 36, in <module>\n    db.define_table(\'t_universitario_archive\',db.t_universitario,Field(\'current_record\',\'reference t_universitario\',readable=False,writable=False))\n  File "/home/daniel/web2py/gluon/dal/base.py", line 787, in define_table\n    table = self.lazy_define_table(tablename,*fields,**args)\n  File "/home/daniel/web2py/gluon/dal/base.py", line 824, in lazy_define_table\n    polymodel=polymodel)\n  File "/home/daniel/web2py/gluon/dal/adapters/base.py", line 459, in create_table\n    self.create_sequence_and_triggers(query,table)\n  File "/home/daniel/web2py/gluon/dal/adapters/base.py", line 1300, in create_sequence_and_triggers\n    self.execute(query)\n  File "/home/daniel/web2py/gluon/dal/adapters/base.py", line 1319, in execute\n    return self.log_execute(*a, **b)\n  File "/home/daniel/web2py/gluon/dal/adapters/base.py", line 1313, in log_execute\n    ret = self.cursor.execute(command, *a[1:], **b)\nOperationalError: table t_universitario_archive already exists\n'
+p267
+s.
